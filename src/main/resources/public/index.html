@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Focos de Incêndio SP</title>
+</head>
+<body>
+    <h1>Focos de Incêndio — São Paulo (2023/2024)</h1>
+    <p>Status da API: <span id="status">carregando...</span></p>
+
+    <script>
+        fetch('/api/status')
+            .then(r => r.json())
+            .then(d => document.getElementById('status').textContent = d.status)
+            .catch(() => document.getElementById('status').textContent = 'erro');
+    </script>
+</body>
+</html>

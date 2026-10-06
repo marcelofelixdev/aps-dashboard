@@ -1,0 +1,17 @@
+### Build ###
+target/
+out/
+!.mvn/wrapper/maven-wrapper.jar
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
+
+### Sistema ###
+.DS_Store
+Thumbs.db
