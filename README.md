@@ -27,6 +27,8 @@ https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/EstadosBr_s
 
 Abra o projeto no IntelliJ e rode `br.unip.aps.App`. Depois acesse http://localhost:7070.
 
+**Integrantes do grupo:** leiam o [guia do grupo](CONTRIBUTING.md) antes de começar.
+
 ## Estrutura
 
 ```
@@ -42,8 +44,8 @@ src/test/java/               ← testes dos algoritmos
 ## Progresso
 
 - [x] Estrutura do projeto
-- [ ] Leitura dos CSVs
-- [ ] Critérios de ordenação (data, bioma, município)
-- [ ] Algoritmos: Bubble, Insertion, Selection, Merge, Quick, Heap
+- [x] Leitura dos CSVs
+- [x] Critérios de ordenação (data, bioma, município)
+- [x] Algoritmos: Bubble, Insertion, Selection, Merge, Quick, Heap
 - [ ] Endpoint de ordenação com métricas
 - [ ] Dashboard (tabela, gráficos, mapa)
