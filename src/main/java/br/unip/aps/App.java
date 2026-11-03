@@ -2,6 +2,9 @@ package br.unip.aps;
 
 import br.unip.aps.io.LeitorCsv;
 import br.unip.aps.model.FocoIncendio;
+import br.unip.aps.service.EstatisticaService;
+import br.unip.aps.service.OrdenacaoService;
+import br.unip.aps.web.ApiRoutes;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 
@@ -9,9 +12,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class App {
+
+    private static final int PORTA = 7070;
 
     private static final List<Path> ARQUIVOS = List.of(
             Path.of("data", "focos_br_sp_ref_2023.csv"),
@@ -21,15 +25,16 @@ public class App {
     public static void main(String[] args) {
         List<FocoIncendio> focos = carregarFocos();
 
+        OrdenacaoService ordenacao = new OrdenacaoService(focos);
+        EstatisticaService estatisticas = new EstatisticaService(focos);
+
         Javalin app = Javalin.create(config ->
                 config.staticFiles.add("/public", Location.CLASSPATH));
 
-        app.get("/api/status", ctx -> ctx.json(Map.of("status", "ok", "focos", focos.size())));
+        ApiRoutes.registrar(app, ordenacao, estatisticas);
 
-        // TODO (etapa 4): GET /api/ordenar?criterio=DATA&algoritmo=BUBBLE
-
-        app.start(7070);
-        System.out.println("Dashboard em http://localhost:7070");
+        app.start(PORTA);
+        System.out.println("Dashboard em http://localhost:" + PORTA);
     }
 
     /** Lê todos os CSVs de data/. Se algum faltar, encerra com uma mensagem clara. */
