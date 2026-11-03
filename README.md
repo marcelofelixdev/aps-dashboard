@@ -36,10 +36,27 @@ src/main/java/br/unip/aps/
 ├── App.java          ← sobe o servidor
 ├── model/            ← FocoIncendio
 ├── io/               ← leitura dos CSVs
-└── sort/             ← algoritmos de ordenação e métricas
+├── sort/             ← algoritmos de ordenação e métricas
+├── service/          ← ordenação com métricas e estatísticas
+└── web/              ← endpoints REST
 src/main/resources/public/   ← dashboard
 src/test/java/               ← testes dos algoritmos
 ```
+
+## API
+
+| Endpoint | O que faz |
+|---|---|
+| `GET /api/status` | status, total de focos e anos disponíveis |
+| `GET /api/opcoes` | critérios, algoritmos (com complexidade e estabilidade) e anos, para os seletores do dashboard |
+| `GET /api/ordenar?criterio=MUNICIPIO&algoritmo=MERGE[&ano=2024]` | ordena e devolve comparações, trocas, tempo e os focos ordenados |
+| `GET /api/estatisticas[?ano=2024][&top=10]` | focos por ano, por mês, por bioma e ranking de municípios |
+
+Exemplos para abrir no navegador com o App rodando:
+- http://localhost:7070/api/ordenar?criterio=BIOMA&algoritmo=QUICK&ano=2023
+- http://localhost:7070/api/estatisticas?top=5
+
+Parâmetro inválido ou ausente responde **400** com `{"erro": "..."}` explicando os valores aceitos.
 
 ## Progresso
 
@@ -47,5 +64,5 @@ src/test/java/               ← testes dos algoritmos
 - [x] Leitura dos CSVs
 - [x] Critérios de ordenação (data, bioma, município)
 - [x] Algoritmos: Bubble, Insertion, Selection, Merge, Quick, Heap
-- [ ] Endpoint de ordenação com métricas
+- [x] Endpoint de ordenação com métricas
 - [ ] Dashboard (tabela, gráficos, mapa)
