@@ -69,6 +69,40 @@ class OrdenacaoServiceTest {
         assertEquals(List.of(2023, 2024), new OrdenacaoService(focos).anosDisponiveis());
     }
 
+
+    @Test
+    void comparaTodosOsAlgoritmosEValidaResultados() {
+        OrdenacaoService service = new OrdenacaoService(focos);
+
+        var resultado = service.comparar(Criterio.DATA, 3);
+
+        assertEquals("DATA", resultado.criterio());
+        assertEquals(4, resultado.totalBase());
+        assertEquals(3, resultado.tamanhoAmostra());
+        assertEquals(3, resultado.repeticoes());
+        assertEquals(Algoritmo.values().length, resultado.resultados().size());
+
+        resultado.resultados().forEach(r -> {
+            assertTrue(r.ordenado(), r.algoritmo() + " deveria ordenar corretamente");
+            assertEquals(3, r.repeticoes());
+            assertTrue(r.comparacoes() >= 0);
+            assertTrue(r.trocas() >= 0);
+            assertTrue(r.duracaoNsMediana() >= 0);
+            assertTrue(r.duracaoMsMediana() >= 0);
+        });
+    }
+
+    @Test
+    void amostraZeroUtilizaTodosOsRegistros() {
+        OrdenacaoService service = new OrdenacaoService(focos);
+
+        var resultado = service.comparar(Criterio.BIOMA, 0);
+
+        assertEquals(focos.size(), resultado.tamanhoAmostra());
+        assertEquals(focos.size(), resultado.totalBase());
+        assertTrue(resultado.resultados().stream().allMatch(r -> r.ordenado()));
+    }
+
     @Test
     void todosOsAlgoritmosDaoAMesmaOrdemNosCriterios() {
         OrdenacaoService service = new OrdenacaoService(focos);
