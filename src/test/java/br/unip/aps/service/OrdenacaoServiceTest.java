@@ -65,6 +65,25 @@ class OrdenacaoServiceTest {
     }
 
     @Test
+    void compararRodaOsSeisAlgoritmosNaMesmaEntrada() {
+        OrdenacaoService service = new OrdenacaoService(focos);
+        OrdenacaoService.ResultadoComparacao r = service.comparar(Criterio.BIOMA, null);
+
+        assertEquals("BIOMA", r.criterio());
+        assertEquals(4, r.total());
+        assertEquals(List.of("BUBBLE", "INSERTION", "SELECTION", "MERGE", "QUICK", "HEAP"),
+                r.algoritmos().stream().map(OrdenacaoService.MedicaoAlgoritmo::codigo).toList());
+        // mesmas métricas que uma ordenação avulsa (cada algoritmo recebeu a entrada original)
+        for (OrdenacaoService.MedicaoAlgoritmo m : r.algoritmos()) {
+            ResultadoOrdenacao avulso = service.ordenar(Criterio.BIOMA, Algoritmo.valueOf(m.codigo()), null);
+            assertEquals(avulso.comparacoes(), m.comparacoes(), m.codigo());
+            assertEquals(avulso.trocas(), m.trocas(), m.codigo());
+        }
+        // Selection: sempre n(n-1)/2 comparações
+        assertEquals(6, r.algoritmos().get(2).comparacoes());
+    }
+
+    @Test
     void anosDisponiveisEmOrdem() {
         assertEquals(List.of(2023, 2024), new OrdenacaoService(focos).anosDisponiveis());
     }

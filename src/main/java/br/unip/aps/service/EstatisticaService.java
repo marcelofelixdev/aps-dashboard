@@ -42,6 +42,7 @@ public class EstatisticaService {
                 selecionados.size(),
                 porAno(selecionados),
                 porMes(selecionados),
+                porMesPorBioma(selecionados),
                 porBioma(selecionados),
                 topMunicipios(selecionados, topN),
                 municipiosDistintos(selecionados));
@@ -78,6 +79,38 @@ public class EstatisticaService {
             }
         }
         return meses;
+    }
+
+    /**
+     * Para cada bioma (em ordem alfabética), a contagem mês a mês, alinhada com {@link #porMes}:
+     * a posição i de cada série corresponde ao mês i de porMes.
+     */
+    private List<SerieBioma> porMesPorBioma(List<FocoIncendio> lista) {
+        if (lista.isEmpty()) {
+            return List.of();
+        }
+        int primeiroAno = Integer.MAX_VALUE;
+        for (FocoIncendio f : lista) {
+            primeiroAno = Math.min(primeiroAno, f.dataHora().getYear());
+        }
+        int meses = porMes(lista).size();
+
+        Map<String, long[]> porBioma = new LinkedHashMap<>();
+        for (FocoIncendio f : lista) {
+            int indice = (f.dataHora().getYear() - primeiroAno) * 12 + f.dataHora().getMonthValue() - 1;
+            porBioma.computeIfAbsent(f.bioma(), k -> new long[meses])[indice]++;
+        }
+
+        List<SerieBioma> series = new ArrayList<>();
+        porBioma.forEach((bioma, contagens) -> {
+            List<Long> valores = new ArrayList<>(contagens.length);
+            for (long c : contagens) {
+                valores.add(c);
+            }
+            series.add(new SerieBioma(bioma, valores));
+        });
+        new MergeSort().ordenar(series, Comparator.comparing(SerieBioma::bioma), new Metricas());
+        return series;
     }
 
     /** Contagem por bioma, do que tem mais focos para o que tem menos. */
@@ -124,10 +157,15 @@ public class EstatisticaService {
             int totalFocos,
             List<Contagem> porAno,
             List<Contagem> porMes,
+            List<SerieBioma> porMesPorBioma,
             List<Contagem> porBioma,
             List<Contagem> topMunicipios,
             int municipiosDistintos
     ) {
+    }
+
+    /** Contagens mensais de um bioma (uma série do gráfico empilhado). */
+    public record SerieBioma(String bioma, List<Long> focos) {
     }
 
     /** Um par rótulo → quantidade de focos (uma barra de gráfico). */

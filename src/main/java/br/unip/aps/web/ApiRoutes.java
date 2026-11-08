@@ -21,6 +21,7 @@ import java.util.Map;
  * GET /api/status
  * GET /api/opcoes
  * GET /api/ordenar?criterio={DATA|BIOMA|MUNICIPIO}&amp;algoritmo={BUBBLE|INSERTION|SELECTION|MERGE|QUICK|HEAP}[&amp;ano=2024]
+ * GET /api/comparar?criterio={DATA|BIOMA|MUNICIPIO}[&amp;ano=2024]   (os 6 algoritmos, só métricas)
  * GET /api/estatisticas[?ano=2024][&amp;top=10]
  * </pre>
  *
@@ -45,6 +46,12 @@ public final class ApiRoutes {
             Algoritmo algoritmo = Parametros.algoritmo(ctx.queryParam("algoritmo"));
             Integer ano = Parametros.ano(ctx.queryParam("ano"), ordenacao.anosDisponiveis());
             ctx.json(ordenacao.ordenar(criterio, algoritmo, ano));
+        });
+
+        app.get("/api/comparar", ctx -> {
+            Criterio criterio = Parametros.criterio(ctx.queryParam("criterio"));
+            Integer ano = Parametros.ano(ctx.queryParam("ano"), ordenacao.anosDisponiveis());
+            ctx.json(ordenacao.comparar(criterio, ano));
         });
 
         app.get("/api/estatisticas", ctx -> {

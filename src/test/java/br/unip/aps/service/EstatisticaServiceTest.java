@@ -59,6 +59,23 @@ class EstatisticaServiceTest {
     }
 
     @Test
+    void porMesPorBiomaSomaOTotalDeCadaMes() {
+        Estatisticas e = new EstatisticaService(focos).calcular(null, 10);
+
+        assertEquals(List.of("Cerrado", "Mata Atlântica"),
+                e.porMesPorBioma().stream().map(EstatisticaService.SerieBioma::bioma).toList());
+        for (int i = 0; i < e.porMes().size(); i++) {
+            long soma = 0;
+            for (EstatisticaService.SerieBioma s : e.porMesPorBioma()) {
+                soma += s.focos().get(i);
+            }
+            assertEquals(e.porMes().get(i).focos(), soma, "mês " + e.porMes().get(i).rotulo());
+        }
+        assertEquals(2L, (long) e.porMesPorBioma().get(0).focos().get(8));  // Cerrado, set/2023
+        assertEquals(3L, (long) e.porMesPorBioma().get(1).focos().get(20)); // Mata Atlântica, set/2024
+    }
+
+    @Test
     void filtroPorAno() {
         Estatisticas e = new EstatisticaService(focos).calcular(2023, 10);
 

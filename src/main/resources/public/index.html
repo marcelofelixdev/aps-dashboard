@@ -3,17 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Focos de Incêndio SP</title>
+    <title>Sobre o projeto · Focos de Incêndio SP</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="comum.js" defer></script>
+    <script src="sobre.js" defer></script>
 </head>
 <body>
-    <h1>Focos de Incêndio — São Paulo (2023/2024)</h1>
-    <p>Status da API: <span id="status">carregando...</span></p>
+<div class="pagina">
+    <header id="cabecalho" class="cabecalho"></header>
+    <div id="aviso" class="aviso" hidden></div>
 
-    <script>
-        fetch('/api/status')
-            .then(r => r.json())
-            .then(d => document.getElementById('status').textContent = d.status)
-            .catch(() => document.getElementById('status').textContent = 'erro');
-    </script>
+    <!-- Apresentação -->
+    <section class="destaque-topo">
+        <p class="sobretitulo">Atividades Práticas Supervisionadas · Estrutura de Dados</p>
+        <h1>Análise de performance de algoritmos de ordenação aplicada aos focos de incêndio em São Paulo</h1>
+        <p class="lead">
+            Um sistema que lê os focos de incêndio detectados por satélite no estado de São Paulo em 2023 e 2024,
+            ordena esses dados com seis algoritmos implementados pelo grupo e mede, a cada ordenação,
+            quantas operações cada algoritmo precisou fazer.
+        </p>
+        <div class="acoes">
+            <a class="botao botao--primario" href="ordenacao.html">Ordenar os dados</a>
+            <a class="botao" href="comparativo.html">Comparar os algoritmos</a>
+        </div>
+    </section>
+
+    <!-- Números da base, carregados da API -->
+    <section class="metricas metricas--resumo" aria-label="Resumo dos dados">
+        <div class="metrica"><span class="metrica__rotulo">Focos de incêndio</span><span id="kFocos" class="metrica__valor">–</span></div>
+        <div class="metrica"><span class="metrica__rotulo">Municípios com focos</span><span id="kMunicipios" class="metrica__valor">–</span></div>
+        <div class="metrica"><span class="metrica__rotulo">Anos analisados</span><span id="kAnos" class="metrica__valor">–</span></div>
+        <div class="metrica"><span class="metrica__rotulo">Algoritmos implementados</span><span id="kAlgoritmos" class="metrica__valor">–</span></div>
+    </section>
+
+    <div class="grade grade--metade-igual">
+        <section class="cartao texto">
+            <h2>Objetivo</h2>
+            <p>
+                Desenvolver um programa capaz de <strong>organizar e ordenar</strong> a base de focos de incêndio
+                do INPE por <strong>data</strong>, <strong>bioma</strong> e <strong>município</strong>, informando a
+                cada solicitação o <strong>número de operações</strong> (comparações e trocas) realizadas.
+            </p>
+            <p>
+                Para isso, o grupo implementou à mão seis algoritmos clássicos de ordenação — sem usar os métodos
+                prontos da linguagem — e construiu este painel para executar, medir e comparar cada um deles
+                sobre os mesmos dados reais.
+            </p>
+        </section>
+
+        <section class="cartao texto">
+            <h2>Por que isso importa</h2>
+            <p>
+                Incêndios em regiões críticas comprometem a biodiversidade e alteram o clima. O monitoramento por
+                satélite gera grandes volumes de dados geográficos, e analisá-los rapidamente é o que permite
+                fiscalizar e agir a tempo.
+            </p>
+            <p>
+                A ordenação é a <strong>etapa inicial do processamento</strong>: dados organizados são o ponto de
+                partida para técnicas de aprendizado de máquina e <em>deep learning</em> que classificam áreas
+                atingidas ou preveem padrões de queimadas. Escolher o algoritmo certo faz diferença quando os
+                dados crescem.
+            </p>
+        </section>
+    </div>
+
+    <section class="cartao texto">
+        <h2>Os dados</h2>
+        <p>
+            Os arquivos vêm do <strong>Programa Queimadas do INPE</strong> (Instituto Nacional de Pesquisas
+            Espaciais), na série do <em>satélite de referência</em>, que usa sempre o mesmo satélite para permitir
+            comparar anos diferentes. O grupo trabalhou com o estado de <strong>São Paulo</strong>,
+            anos de <strong>2023</strong> e <strong>2024</strong>, em formato CSV.
+        </p>
+        <div class="tabela-rolagem">
+            <table class="tabela tabela--compacta">
+                <thead><tr><th>Coluna do CSV</th><th>O que é</th><th>Uso no sistema</th></tr></thead>
+                <tbody>
+                <tr><td><code>data_pas</code></td><td>data e hora da passagem do satélite</td><td>critério <strong>Data</strong></td></tr>
+                <tr><td><code>bioma</code></td><td>bioma onde o foco foi detectado</td><td>critério <strong>Bioma</strong></td></tr>
+                <tr><td><code>municipio</code></td><td>município do foco</td><td>critério <strong>Município</strong></td></tr>
+                <tr><td><code>lat</code>, <code>lon</code></td><td>coordenadas geográficas</td><td>mapa</td></tr>
+                <tr><td><code>id_bdq</code>, <code>foco_id</code></td><td>identificadores do foco</td><td>leitura e testes</td></tr>
+                <tr><td><code>pais</code>, <code>estado</code></td><td>sempre Brasil / São Paulo</td><td>—</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p id="resumoBiomas" class="nota"></p>
+    </section>
+
+    <section class="cartao texto">
+        <h2>Como o sistema funciona</h2>
+        <ol class="fluxo">
+            <li><strong>CSV do INPE</strong><span>2 arquivos, um por ano</span></li>
+            <li><strong>Leitura</strong><span><code>LeitorCsv</code> converte cada linha e descarta as quebradas</span></li>
+            <li><strong>Ordenação</strong><span>6 algoritmos + <code>Metricas</code> contando as operações</span></li>
+            <li><strong>Serviços</strong><span>copiam os dados, medem o tempo, calculam estatísticas</span></li>
+            <li><strong>API REST</strong><span>Javalin responde em JSON</span></li>
+            <li><strong>Painel</strong><span>navegador: tabelas, gráficos e mapa</span></li>
+        </ol>
+        <p>
+            O back-end é escrito em <strong>Java 21</strong> e organizado em camadas: cada uma tem uma única
+            responsabilidade (ler, ordenar, coordenar, responder). O painel é feito em HTML, CSS e JavaScript,
+            com <strong>Chart.js</strong> para os gráficos e <strong>Leaflet</strong> para o mapa, e não faz nenhuma
+            ordenação por conta própria: tudo o que ele mostra vem da API.
+        </p>
+    </section>
+
+    <section class="cartao texto">
+        <h2>Como o desempenho é medido</h2>
+        <dl class="definicoes">
+            <dt>Comparações</dt>
+            <dd>
+                Quantas vezes o algoritmo perguntou "este elemento vem antes daquele?". O comparador do critério é
+                "embrulhado" por outro que soma 1 a cada chamada (padrão de projeto <em>Decorator</em>), então
+                nenhuma comparação escapa da contagem.
+            </dd>
+            <dt>Trocas / movimentações</dt>
+            <dd>
+                Quantas vezes um elemento mudou de posição: cada troca de dois elementos (Bubble, Selection, Quick,
+                Heap), cada deslocamento (Insertion) ou cada cópia de volta para a lista (Merge, que não troca).
+            </dd>
+            <dt>Tempo</dt>
+            <dd>
+                Medido com <code>System.nanoTime()</code> só durante a ordenação. Varia com o computador e a carga
+                do momento; por isso as contagens de operações são a medida principal de comparação.
+            </dd>
+            <dt>Mesma entrada</dt>
+            <dd>
+                Cada ordenação trabalha sobre uma <strong>cópia</strong> dos dados originais. Assim, um algoritmo
+                nunca recebe a lista já ordenada pelo anterior, e as medições são justas.
+            </dd>
+        </dl>
+    </section>
+
+    <section class="cartao">
+        <div class="cartao__cabecalho">
+            <h2>Os seis algoritmos</h2>
+            <span class="nota">n = número de focos ordenados</span>
+        </div>
+        <div id="algoritmos" class="cartoes-algoritmo"></div>
+    </section>
+
+    <section class="cartao texto">
+        <h2>Critérios de ordenação</h2>
+        <div class="tabela-rolagem">
+            <table class="tabela tabela--compacta">
+                <thead><tr><th>Critério</th><th>Ordena por</th><th>Em caso de empate</th></tr></thead>
+                <tbody>
+                <tr><td><strong>Data</strong></td><td>data e hora da detecção, da mais antiga para a mais recente</td><td>—</td></tr>
+                <tr><td><strong>Bioma</strong></td><td>nome do bioma, em ordem alfabética</td><td>data e hora</td></tr>
+                <tr><td><strong>Município</strong></td><td>nome do município, em ordem alfabética do português</td><td>data e hora</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="nota">
+            A ordem alfabética respeita os acentos: "ÁGUAS DA PRATA" fica junto dos nomes com A, e não depois do Z
+            (o que aconteceria comparando os códigos dos caracteres). Os empates por data mostram a diferença entre
+            algoritmos <strong>estáveis</strong>, que mantêm a ordem original dos iguais, e não estáveis.
+        </p>
+    </section>
+
+    <footer id="rodape" class="rodape"></footer>
+</div>
 </body>
 </html>

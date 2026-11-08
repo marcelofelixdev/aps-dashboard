@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comparativo · Focos de Incêndio SP</title>
+
+    <!-- Chart.js (gráficos) vem da internet -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.js" defer></script>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="comum.js" defer></script>
+    <script src="comparativo.js" defer></script>
+</head>
+<body>
+<div class="pagina">
+    <header id="cabecalho" class="cabecalho"></header>
+
+    <div class="titulo-pagina">
+        <h1>Comparativo dos algoritmos</h1>
+        <p>Os seis algoritmos ordenam exatamente a mesma entrada, um depois do outro, e o servidor devolve as
+            métricas de cada um.</p>
+    </div>
+
+    <div id="aviso" class="aviso" hidden></div>
+
+    <section class="controles" aria-label="Controles do comparativo">
+        <label class="campo"><span>Critério</span><select id="criterio"></select></label>
+        <label class="campo"><span>Ano</span><select id="ano"></select></label>
+        <div class="botoes">
+            <button id="btnComparar" class="botao botao--primario" type="button">Comparar os 6 algoritmos</button>
+            <button id="btnMatriz" class="botao" type="button">Rodar nos 3 critérios</button>
+        </div>
+    </section>
+    <p class="dica">Os algoritmos O(n²) levam alguns segundos cada; o comparativo completo pode levar até ~15 s.</p>
+
+    <section id="secaoResultado" class="cartao" hidden aria-labelledby="tituloComparativo">
+        <div class="cartao__cabecalho">
+            <h2 id="tituloComparativo">Resultado</h2>
+            <div class="alternador" role="group" aria-label="Medida do gráfico">
+                <button type="button" data-medida="comparacoes" class="ativo">Comparações</button>
+                <button type="button" data-medida="trocas">Trocas</button>
+                <button type="button" data-medida="tempoMs">Tempo</button>
+            </div>
+        </div>
+        <p id="legendaComparativo" class="nota"></p>
+        <div class="comparativo">
+            <div class="grafico grafico--comparativo"><canvas id="gComparativo"></canvas></div>
+            <div class="tabela-rolagem">
+                <table class="tabela tabela--compacta">
+                    <thead>
+                    <tr>
+                        <th>Algoritmo</th>
+                        <th class="num">Comparações</th>
+                        <th class="num">Trocas</th>
+                        <th class="num">Tempo</th>
+                        <th>Complexidade</th>
+                        <th>Estável</th>
+                    </tr>
+                    </thead>
+                    <tbody id="corpoComparativo"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="secaoConclusoes" class="cartao texto" hidden aria-labelledby="tituloConclusoes">
+        <h2 id="tituloConclusoes">O que os números mostram</h2>
+        <ul id="conclusoes" class="conclusoes"></ul>
+    </section>
+
+    <section id="secaoMatriz" class="cartao" hidden aria-labelledby="tituloMatriz">
+        <div class="cartao__cabecalho">
+            <h2 id="tituloMatriz">Comparações por algoritmo e critério</h2>
+            <span id="progressoMatriz" class="nota"></span>
+        </div>
+        <p class="nota nota--espaco-baixo">
+            Mesmo algoritmo, critérios diferentes: o número de operações depende de quão "bagunçada" a entrada está
+            em relação ao critério. Em destaque, o menor valor de cada coluna.
+        </p>
+        <div class="tabela-rolagem">
+            <table class="tabela tabela--compacta">
+                <thead id="cabecalhoMatriz"></thead>
+                <tbody id="corpoMatriz"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer id="rodape" class="rodape"></footer>
+</div>
+</body>
+</html>
