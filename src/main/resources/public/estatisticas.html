@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <title>Estatísticas | Focos de Incêndio SP</title>
+
+
+    <script src="comum.js" defer></script>
+    <script src="estatisticas.js" defer></script>
+</head>
+<body>
+<div class="pagina">
+    <header id="cabecalho" class="cabecalho"></header>
+
+    <div class="titulo-pagina">
+        <h1>Estatísticas dos focos</h1>
+        <p>O que os dados de São Paulo mostram: quando, onde e em qual bioma os focos se concentram.</p>
+    </div>
+
+    <div id="aviso" class="aviso" hidden></div>
+
+    <section class="controles" aria-label="Filtros">
+        <label class="campo"><span>Ano</span><select id="ano"></select></label>
+        <label class="campo"><span>Ranking de municípios</span>
+            <select id="top">
+                <option value="10">10 maiores</option>
+                <option value="20">20 maiores</option>
+                <option value="30">30 maiores</option>
+            </select>
+        </label>
+    </section>
+
+    <section class="metricas metricas--resumo" aria-label="Resumo">
+        <div class="metrica"><span class="metrica__rotulo">Focos</span><span id="kFocos" class="metrica__valor">–</span></div>
+        <div class="metrica"><span class="metrica__rotulo">Municípios atingidos</span><span id="kMunicipios" class="metrica__valor">–</span></div>
+        <div class="metrica"><span class="metrica__rotulo">Mês com mais focos</span><span id="kMes" class="metrica__valor">–</span><span id="kMesSub" class="metrica__sub"></span></div>
+        <div class="metrica"><span class="metrica__rotulo">Município com mais focos</span><span id="kMunicipio" class="metrica__valor metrica__valor--texto">–</span><span id="kMunicipioSub" class="metrica__sub"></span></div>
+    </section>
+
+    <section class="cartao" aria-labelledby="tituloMes">
+        <div class="cartao__cabecalho">
+            <h2 id="tituloMes">Focos por mês</h2>
+            <span id="notaMes" class="nota"></span>
+        </div>
+        <div class="grafico grafico--largo"><canvas id="gMes"></canvas></div>
+    </section>
+
+    <div class="grade grade--metade grade--topo">
+        <section class="cartao" aria-labelledby="tituloBioma">
+            <div class="cartao__cabecalho"><h2 id="tituloBioma">Focos por bioma</h2></div>
+            <div class="grafico grafico--baixo"><canvas id="gBioma"></canvas></div>
+            <p id="notaBioma" class="nota nota--espaco"></p>
+        </section>
+        <section class="cartao" aria-labelledby="tituloMunicipios">
+            <div class="cartao__cabecalho"><h2 id="tituloMunicipios">Municípios com mais focos</h2></div>
+            <div class="grafico grafico--alto" id="caixaMunicipios"><canvas id="gMunicipios"></canvas></div>
+        </section>
+    </div>
+
+    <footer id="rodape" class="rodape"></footer>
+</div>
+
+<!-- bibliotecas externas (precisam de internet); carregadas no fim para não atrasar a página -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.js" defer></script>
+</body>
+</html>

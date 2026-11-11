@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <title>Ordenação | Focos de Incêndio SP</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <script src="comum.js" defer></script>
+    <script src="ordenacao.js" defer></script>
+</head>
+<body>
+<div class="pagina">
+    <header id="cabecalho" class="cabecalho"></header>
+
+    <div class="titulo-pagina">
+        <h1>Ordenação dos focos</h1>
+        <p>Escolha o critério, o algoritmo e o ano. O servidor ordena uma cópia dos dados e conta cada operação.</p>
+    </div>
+
+    <div id="aviso" class="aviso" hidden></div>
+
+    <section class="controles" aria-label="Controles de ordenação">
+        <label class="campo"><span>Critério</span><select id="criterio"></select></label>
+        <label class="campo"><span>Algoritmo</span><select id="algoritmo"></select></label>
+        <label class="campo"><span>Ano</span><select id="ano"></select></label>
+        <div class="botoes">
+            <button id="btnOrdenar" class="botao botao--primario" type="button">Ordenar</button>
+        </div>
+    </section>
+    <p id="dicaQuadratico" class="dica" hidden>
+        Algoritmo O(n²): com ~10 mil focos pode levar alguns segundos.
+    </p>
+
+    <section class="cartao" aria-labelledby="tituloResultado">
+        <div class="cartao__cabecalho">
+            <h2 id="tituloResultado">Resultado da ordenação</h2>
+            <div class="cartao__acoes">
+                <span id="resumoAlgoritmo" class="etiqueta"></span>
+                <button id="btnGirar" class="botao botao--pequeno" type="button" disabled title="Repetir a animação dos números">
+                    ↻ Girar de novo
+                </button>
+            </div>
+        </div>
+        <div class="metricas">
+            <div class="metrica"><span class="metrica__rotulo">Comparações</span><span id="mComparacoes" class="metrica__valor">–</span></div>
+            <div class="metrica"><span class="metrica__rotulo">Trocas / movimentações</span><span id="mTrocas" class="metrica__valor">–</span></div>
+            <div class="metrica"><span class="metrica__rotulo">Tempo de ordenação</span><span id="mTempo" class="metrica__valor">–</span></div>
+            <div class="metrica"><span class="metrica__rotulo">Focos ordenados</span><span id="mTotal" class="metrica__valor">–</span></div>
+        </div>
+        <p id="explicacaoResultado" class="nota nota--espaco"></p>
+    </section>
+
+    <div class="grade grade--dados">
+        <section class="cartao" aria-labelledby="tituloTabela">
+            <div class="cartao__cabecalho">
+                <h2 id="tituloTabela">Focos ordenados</h2>
+                <span id="infoPagina" class="nota"></span>
+            </div>
+            <div class="tabela-rolagem">
+                <table class="tabela">
+                    <thead>
+                    <tr>
+                        <th class="num">#</th>
+                        <th data-coluna="DATA">Data e hora</th>
+                        <th data-coluna="MUNICIPIO">Município</th>
+                        <th data-coluna="BIOMA">Bioma</th>
+                        <th class="num">Latitude</th>
+                        <th class="num">Longitude</th>
+                    </tr>
+                    </thead>
+                    <tbody id="corpoTabela"></tbody>
+                </table>
+            </div>
+            <nav class="paginacao" aria-label="Paginação">
+                <button type="button" id="pagPrimeira" class="botao botao--pequeno">« Primeira</button>
+                <button type="button" id="pagAnterior" class="botao botao--pequeno">‹ Anterior</button>
+                <span id="pagTexto"></span>
+                <button type="button" id="pagProxima" class="botao botao--pequeno">Próxima ›</button>
+                <button type="button" id="pagUltima" class="botao botao--pequeno">Última »</button>
+            </nav>
+        </section>
+
+        <section class="cartao" aria-labelledby="tituloMapa">
+            <div class="cartao__cabecalho">
+                <h2 id="tituloMapa">Mapa dos focos</h2>
+                <span class="legenda" id="legendaMapa"></span>
+            </div>
+            <div id="mapa" class="mapa"></div>
+        </section>
+    </div>
+
+    <footer id="rodape" class="rodape"></footer>
+</div>
+
+<!-- bibliotecas externas (precisam de internet); carregadas no fim para não atrasar a página -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+</body>
+</html>

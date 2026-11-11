@@ -46,17 +46,21 @@ aps-dashboard/
     │   │   └── HeapSort.java            ✅
     │   ├── service/
     │   │   ├── OrdenacaoService.java    ✅ junta critério + algoritmo + métricas
-    │   │   └── EstatisticaService.java  ✅ extras: focos por mês, por bioma, top municípios
+    │   │   ├── EstatisticaService.java  ✅ extras: focos por mês, por bioma, top municípios
+    │   │   └── PrevisaoService.java     ✅ cenários, prioridade por município, validação 2023 → 2024
     │   └── web/
     │       ├── ApiRoutes.java           ✅ endpoints REST do Javalin
     │       └── Parametros.java          ✅ converte e valida os parâmetros (400 se inválidos)
     ├── main/resources/public/           ← o dashboard (front)
-    │   ├── index.html                   ✅ (por enquanto só mostra o status)
-    │   ├── app.js                       🔲 chama a API e desenha com Chart.js e Leaflet
-    │   └── style.css                    🔲
+    │   ├── comum.js                     ✅ menu, chamadas à API, formatação, cores (usado por todas as páginas)
+    │   ├── style.css                    ✅ visual (modo claro e escuro)
+    │   ├── index.html + sobre.js        ✅ página "Sobre o projeto"
+    │   ├── ordenacao.html + .js         ✅ ordenação: métricas, tabela e mapa (Leaflet)
+    │   ├── comparativo.html + .js       ✅ os 6 algoritmos lado a lado + conclusões
+    │   └── estatisticas.html + .js      ✅ gráficos (Chart.js)
     └── test/java/br/unip/aps/
         ├── io/LeitorCsvTest.java        ✅ leitura dos CSVs reais e de linhas quebradas
-        ├── service/                     ✅ OrdenacaoServiceTest, EstatisticaServiceTest
+        ├── service/                     ✅ OrdenacaoServiceTest, EstatisticaServiceTest, PrevisaoServiceTest
         ├── web/ParametrosTest.java      ✅ validação dos parâmetros
         └── sort/
             ├── CriterioTest.java        ✅ ordem e desempate de cada critério
@@ -114,8 +118,9 @@ recebe os dados já ordenados e as métricas ficam falsas.
 - Os parâmetros aceitam minúsculas, acento e o sufixo "sort" (`município`, `merge sort`).
 - Erro de parâmetro: status **400** e `{"erro": "mensagem explicando os valores aceitos"}`.
 
-Outros endpoints: `GET /api/opcoes` (valores dos seletores) e `GET /api/estatisticas[?ano=][&top=10]`
-(focos `porAno`, `porMes`, `porBioma`, `topMunicipios`, cada item no formato `{"rotulo": "set/2024", "focos": 1234}`).
+Outros endpoints: `GET /api/opcoes` (valores dos seletores), `GET /api/comparar?criterio=[&ano=]`
+(os 6 algoritmos na mesma entrada, só métricas) e `GET /api/estatisticas[?ano=][&top=10]`
+(focos `porAno`, `porMes`, `porBioma`, `topMunicipios`, cada item no formato `{"rotulo": "set/2024", "focos": 1234}`, e `porMesPorBioma`, uma série mensal por bioma).
 
 Front e back combinam por esse formato: quem faz o `app.js` pode começar antes do endpoint ficar pronto,
 usando um JSON fixo nesse formato.
@@ -264,9 +269,9 @@ Marque seu nome antes de começar para ninguém fazer a mesma coisa duas vezes.
 | `OrdenacaoService` | Marcelo | ✅ |
 | `EstatisticaService` (extras) | Marcelo | ✅ |
 | `ApiRoutes` + endpoint `/api/ordenar` | Marcelo | ✅ |
-| Dashboard: tabela + métricas | | ⬜ |
-| Dashboard: gráficos (Chart.js) | | ⬜ |
-| Dashboard: mapa (Leaflet) | | ⬜ |
+| Dashboard: tabela + métricas | Marcelo | ✅ |
+| Dashboard: gráficos (Chart.js) | Marcelo | ✅ |
+| Dashboard: mapa (Leaflet) | Marcelo | ✅ |
 | Dissertação | todos | ⬜ |
 
 Status: ⬜ não iniciado · 🟨 em andamento · ✅ concluído

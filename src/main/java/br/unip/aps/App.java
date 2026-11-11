@@ -4,6 +4,7 @@ import br.unip.aps.io.LeitorCsv;
 import br.unip.aps.model.FocoIncendio;
 import br.unip.aps.service.EstatisticaService;
 import br.unip.aps.service.OrdenacaoService;
+import br.unip.aps.service.PrevisaoService;
 import br.unip.aps.web.ApiRoutes;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
@@ -27,11 +28,12 @@ public class App {
 
         OrdenacaoService ordenacao = new OrdenacaoService(focos);
         EstatisticaService estatisticas = new EstatisticaService(focos);
+        PrevisaoService previsoes = new PrevisaoService(focos);
 
         Javalin app = Javalin.create(config ->
                 config.staticFiles.add("/public", Location.CLASSPATH));
 
-        ApiRoutes.registrar(app, ordenacao, estatisticas);
+        ApiRoutes.registrar(app, ordenacao, estatisticas, previsoes);
 
         app.start(PORTA);
         System.out.println("Dashboard em http://localhost:" + PORTA);

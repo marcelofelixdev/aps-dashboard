@@ -27,6 +27,19 @@ https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/EstadosBr_s
 
 Abra o projeto no IntelliJ e rode `br.unip.aps.App`. Depois acesse http://localhost:7070.
 
+O dashboard tem cinco páginas (menu no topo):
+
+| Página | Arquivo | O que mostra |
+|---|---|---|
+| **Sobre o projeto** | `index.html` | objetivo, contexto, os dados, como o sistema funciona, como as operações são medidas e os 6 algoritmos explicados |
+| **Ordenação** | `ordenacao.html` | escolhe critério, algoritmo e ano; mostra comparações, trocas e tempo, a tabela paginada na ordem obtida e o mapa por bioma |
+| **Comparativo** | `comparativo.html` | os 6 algoritmos na mesma entrada (gráfico em escala log + tabela), conclusões automáticas e a tabela algoritmo × critério |
+| **Estatísticas** | `estatisticas.html` | focos por mês (por bioma), por bioma e ranking de municípios, com filtro de ano |
+| **Previsões** | `previsoes.html` | cenários de focos por mês, calendário de prevenção, mapa e ranking de prioridade dos municípios, plano de contenção e validação 2023 → 2024 |
+
+> Os gráficos (Chart.js) e o mapa (Leaflet) vêm da internet. Sem conexão, a ordenação e a tabela
+> continuam funcionando e o dashboard avisa o que não carregou.
+
 **Integrantes do grupo:** leiam o [guia do grupo](CONTRIBUTING.md) antes de começar.
 
 ## Estrutura
@@ -39,7 +52,7 @@ src/main/java/br/unip/aps/
 ├── sort/             ← algoritmos de ordenação e métricas
 ├── service/          ← ordenação com métricas e estatísticas
 └── web/              ← endpoints REST
-src/main/resources/public/   ← dashboard
+src/main/resources/public/   ← dashboard (uma página HTML + um .js por tela; comum.js e style.css compartilhados)
 src/test/java/               ← testes dos algoritmos
 ```
 
@@ -50,7 +63,9 @@ src/test/java/               ← testes dos algoritmos
 | `GET /api/status` | status, total de focos e anos disponíveis |
 | `GET /api/opcoes` | critérios, algoritmos (com complexidade e estabilidade) e anos, para os seletores do dashboard |
 | `GET /api/ordenar?criterio=MUNICIPIO&algoritmo=MERGE[&ano=2024]` | ordena e devolve comparações, trocas, tempo e os focos ordenados |
+| `GET /api/comparar?criterio=DATA[&ano=2024]` | roda os 6 algoritmos na mesma entrada e devolve só as métricas |
 | `GET /api/estatisticas[?ano=2024][&top=10]` | focos por ano, por mês, por bioma e ranking de municípios |
+| `GET /api/previsoes[?top=20]` | perfil sazonal e cenários, janela crítica, índice de prioridade por município, áreas recorrentes e validação retroativa |
 
 Exemplos para abrir no navegador com o App rodando:
 - http://localhost:7070/api/ordenar?criterio=BIOMA&algoritmo=QUICK&ano=2023
@@ -65,4 +80,5 @@ Parâmetro inválido ou ausente responde **400** com `{"erro": "..."}` explicand
 - [x] Critérios de ordenação (data, bioma, município)
 - [x] Algoritmos: Bubble, Insertion, Selection, Merge, Quick, Heap
 - [x] Endpoint de ordenação com métricas
-- [ ] Dashboard (tabela, gráficos, mapa)
+- [x] Dashboard (tabela, gráficos, mapa)
+- [x] Comparativo dos 6 algoritmos

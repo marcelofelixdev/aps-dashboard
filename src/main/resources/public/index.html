@@ -3,17 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Focos de Incêndio SP</title>
+    <link rel="stylesheet" href="style.css">
+    <title>Focos de Incêndio SP | Algoritmos de ordenação</title>
+    <script src="comum.js" defer></script>
+    <script src="sobre.js" defer></script>
 </head>
-<body>
-    <h1>Focos de Incêndio — São Paulo (2023/2024)</h1>
-    <p>Status da API: <span id="status">carregando...</span></p>
+<body class="inicio">
+<header id="cabecalho" class="cabecalho"></header>
 
-    <script>
-        fetch('/api/status')
-            .then(r => r.json())
-            .then(d => document.getElementById('status').textContent = d.status)
-            .catch(() => document.getElementById('status').textContent = 'erro');
-    </script>
+<main class="pagina">
+    <div id="aviso" class="aviso" hidden></div>
+
+    <!-- Abertura: os focos de verdade, primeiro no mapa, depois em ordem de data -->
+    <section class="abertura">
+        <div>
+            <h1><span id="kFocos">10.378</span> focos de incêndio. Seis maneiras de colocá-los em ordem.</h1>
+            <p class="lead">
+                São os focos que o satélite de referência do INPE detectou no estado de São Paulo em 2023 e 2024.
+                O sistema os ordena por data, bioma e município com seis algoritmos escritos pelo grupo e conta
+                cada comparação e cada troca que eles fazem.
+            </p>
+            <div class="acoes">
+                <a class="botao botao--primario" href="ordenacao.html">Ordenar os dados</a>
+                <a class="botao" href="comparativo.html">Comparar os algoritmos</a>
+            </div>
+        </div>
+
+        <figure class="campo-focos">
+            <div class="campo-focos__tela">
+                <canvas id="campoFocos" role="img"
+                        aria-label="Os focos de incêndio de São Paulo, primeiro na posição geográfica e depois reorganizados em ordem de data"></canvas>
+            </div>
+            <figcaption>
+                <div class="alternador" role="group" aria-label="Como mostrar os focos">
+                    <button type="button" data-vista="mapa">No mapa</button>
+                    <button type="button" data-vista="ordem">Em ordem de data</button>
+                </div>
+                <span class="escala"><span>jan 2023</span><span class="escala__faixa" aria-hidden="true"></span><span>dez 2024</span></span>
+            </figcaption>
+        </figure>
+    </section>
+
+    <!-- O custo de ordenar -->
+    <section class="secao">
+        <h2>Ordenar 10 mil focos pode custar 54 milhões de comparações, ou 138 mil</h2>
+        <div class="secao__corpo">
+            <p>
+                Um algoritmo quadrático, como o Selection Sort, compara cada foco com quase todos os outros:
+                n(n−1)/2 comparações. Os algoritmos O(n log n) dividem o problema e ficam na casa de n·log₂n.
+                As duas barras abaixo estão na mesma escala.
+            </p>
+            <div class="escala-custo" id="escalaCusto">
+                <div class="custo__linha">
+                    <span class="custo__classe">O(n²)</span>
+                    <div class="custo__barra" style="width: 100%"></div>
+                    <span class="custo__valor"><strong id="kQuadratico">53.846.253</strong> comparações</span>
+                </div>
+                <div class="custo__linha">
+                    <span class="custo__classe">O(n log n)</span>
+                    <div class="custo__barra" id="barraNlogn" style="width: .26%"></div>
+                    <span class="custo__valor">cerca de <strong id="kNlogn">138.455</strong> comparações</span>
+                </div>
+            </div>
+            <p class="nota nota--espaco">
+                Valores teóricos para n = <span id="kN">10.378</span>. Os números medidos de cada algoritmo estão no
+                <a href="comparativo.html">Comparativo</a>.
+            </p>
+        </div>
+    </section>
+
+    <!-- As três telas -->
+    <section class="secao">
+        <h2>O painel tem quatro telas</h2>
+        <div class="telas">
+            <div class="tela">
+                <h3><a href="estatisticas.html">Estatísticas</a></h3>
+                <p>Quando, onde e em qual bioma os focos se concentram.</p>
+            </div>
+            <div class="tela">
+                <h3><a href="ordenacao.html">Ordenação</a></h3>
+                <p>Escolha critério e algoritmo e veja quantas comparações e trocas foram feitas.</p>
+            </div>
+            <div class="tela">
+                <h3><a href="comparativo.html">Comparativo</a></h3>
+                <p>Os seis algoritmos ordenam a mesma entrada, lado a lado.</p>
+            </div>
+            <div class="tela">
+                <h3><a href="previsoes.html">Previsões</a></h3>
+                <p>Quando e onde os focos tendem a voltar e como priorizar a prevenção.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Temas: a barra gruda abaixo do menu e marca a seção visível -->
+    <nav class="temas" aria-label="Temas desta página">
+        <div class="temas__lista">
+            <a href="#objetivo">Objetivo</a>
+            <a href="#dados">Dados</a>
+            <a href="#sistema">Funcionamento</a>
+            <a href="#medicao">Medição</a>
+            <a href="#algoritmos-secao">Algoritmos</a>
+            <a href="#criterios">Critérios</a>
+        </div>
+    </nav>
+
+    <section id="objetivo" class="secao tema">
+        <h2>Objetivo</h2>
+        <div class="secao__corpo texto">
+            <p>
+                Organizar a base de focos de incêndio do INPE por <strong>data</strong>, <strong>bioma</strong> e
+                <strong>município</strong>, informando a cada solicitação quantas operações foram realizadas.
+                Os seis algoritmos foram implementados à mão, sem os métodos de ordenação prontos do Java.
+            </p>
+            <p>
+                Incêndios comprometem a biodiversidade e alteram o clima, e o monitoramento por satélite gera muitos
+                dados. Ordenar é a primeira etapa para analisá-los: dados organizados são o ponto de partida para
+                técnicas de aprendizado de máquina que classificam áreas atingidas ou preveem padrões de queimadas.
+            </p>
+        </div>
+    </section>
+
+    <section id="dados" class="secao tema">
+        <h2>Dados</h2>
+        <div class="secao__corpo texto">
+            <p>
+                Arquivos CSV do Programa Queimadas do INPE, na série do satélite de referência, que usa o mesmo
+                satélite em todos os anos para permitir comparações. Estado de São Paulo, 2023 e 2024.
+                <span id="resumoBiomas"></span>
+            </p>
+            <div class="tabela-rolagem nota--espaco">
+                <table class="tabela tabela--compacta">
+                    <thead><tr><th>Coluna</th><th>O que é</th><th>Uso no sistema</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>data_pas</code></td><td>data e hora da passagem do satélite</td><td>critério Data</td></tr>
+                    <tr><td><code>bioma</code></td><td>bioma do foco</td><td>critério Bioma</td></tr>
+                    <tr><td><code>municipio</code></td><td>município do foco</td><td>critério Município</td></tr>
+                    <tr><td><code>lat</code>, <code>lon</code></td><td>coordenadas</td><td>mapa</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="sistema" class="secao tema">
+        <h2>Funcionamento</h2>
+        <div class="secao__corpo secao__corpo--largo">
+            <ol class="fluxo">
+                <li><strong>CSV do INPE</strong><span>um arquivo por ano</span></li>
+                <li><strong>Leitura</strong><span><code>LeitorCsv</code> converte as linhas</span></li>
+                <li><strong>Ordenação</strong><span>seis algoritmos e a contagem em <code>Metricas</code></span></li>
+                <li><strong>Serviços</strong><span>cópia dos dados, tempo, estatísticas</span></li>
+                <li><strong>API REST</strong><span>Javalin responde em JSON</span></li>
+                <li><strong>Painel</strong><span>esta página, gráficos e mapa</span></li>
+            </ol>
+            <p style="max-width: 68ch">
+                O back-end é escrito em Java 21, em camadas com uma responsabilidade cada. O painel só exibe o que
+                a API devolve: nenhuma ordenação acontece no navegador.
+            </p>
+        </div>
+    </section>
+
+    <section id="medicao" class="secao tema">
+        <h2>Medição</h2>
+        <div class="secao__corpo">
+            <dl class="definicoes">
+                <dt>Comparações</dt>
+                <dd>Cada vez que o algoritmo pergunta se um foco vem antes do outro. O comparador é envolvido por
+                    outro que conta as chamadas (padrão Decorator).</dd>
+                <dt>Trocas</dt>
+                <dd>Cada vez que um elemento muda de posição: uma troca, um deslocamento (Insertion) ou uma cópia (Merge).</dd>
+                <dt>Tempo</dt>
+                <dd>Medido com <code>System.nanoTime()</code>. Varia de um computador para outro; por isso a
+                    contagem de operações é a medida principal.</dd>
+                <dt>Mesma entrada</dt>
+                <dd>Cada ordenação recebe uma cópia dos dados originais, então nenhum algoritmo começa com a lista já ordenada.</dd>
+            </dl>
+        </div>
+    </section>
+
+    <section id="algoritmos-secao" class="secao tema">
+        <h2>Algoritmos</h2>
+        <div class="secao__corpo secao__corpo--largo">
+            <div class="tabela-rolagem">
+                <table class="tabela tabela-algoritmos">
+                    <thead>
+                    <tr><th>Algoritmo</th><th>Como funciona</th><th>Melhor</th><th>Médio</th><th>Pior</th><th>Memória</th><th>Estável</th></tr>
+                    </thead>
+                    <tbody id="algoritmos"></tbody>
+                </table>
+            </div>
+            <p class="nota nota--espaco">n é o número de focos ordenados. Em vermelho, as complexidades quadráticas.</p>
+        </div>
+    </section>
+
+    <section id="criterios" class="secao tema">
+        <h2>Critérios</h2>
+        <div class="secao__corpo texto">
+            <p>
+                <strong>Data</strong> vai da detecção mais antiga para a mais recente. <strong>Bioma</strong> e
+                <strong>município</strong> seguem a ordem alfabética do português, em que "Águas da Prata" fica junto
+                dos nomes com A e não depois do Z, e desempatam pela data.
+            </p>
+            <p>
+                Esses empates mostram a diferença entre algoritmos estáveis, que mantêm a ordem original dos
+                elementos iguais, e os que não mantêm.
+            </p>
+        </div>
+    </section>
+</main>
+
+<footer id="rodape" class="rodape"></footer>
 </body>
 </html>
