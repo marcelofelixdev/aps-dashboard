@@ -6,11 +6,57 @@
 "use strict";
 
 const PAGINAS = [
-    { arquivo: "index.html", titulo: "Sobre o projeto" },
-    { arquivo: "ordenacao.html", titulo: "Ordenação" },
-    { arquivo: "comparativo.html", titulo: "Comparativo" },
-    { arquivo: "estatisticas.html", titulo: "Estatísticas" },
+    { arquivo: "index.html", titulo: "Sobre o projeto", icone: "info", cor: "fogo" },
+    { arquivo: "ordenacao.html", titulo: "Ordenação", icone: "ordenar", cor: "azul" },
+    { arquivo: "comparativo.html", titulo: "Comparativo", icone: "comparar", cor: "violeta" },
+    { arquivo: "estatisticas.html", titulo: "Estatísticas", icone: "grafico", cor: "ambar" },
+    { arquivo: "previsoes.html", titulo: "Previsões", icone: "escudo", cor: "fogo" },
 ];
+
+/**
+ * Ícones desenhados pelo grupo (traço de 24×24). Use no HTML com <span data-icone="nome"></span>.
+ */
+const ICONES = {
+    chama: '<path d="M12 2.5c1.6 3.6 6 6.2 6 11.2a6 6 0 0 1-12 0c0-3 1.9-4.7 3-6.6.3 2 1.3 3.3 2.7 3.7-.5-2.8-.4-5.6.3-8.3z"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+    ordenar: '<path d="M7 4v16M3.5 16.5 7 20l3.5-3.5M13 6h8M13 12h6M13 18h3"/>',
+    comparar: '<path d="M12 3v18M6 21h12M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/>',
+    grafico: '<path d="M4 20V4M4 20h16"/><rect x="7" y="12" width="3" height="5" rx="1"/><rect x="12" y="8" width="3" height="9" rx="1"/><rect x="17" y="5" width="3" height="12" rx="1"/>',
+    alvo: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+    banco: '<ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+    fluxo: '<rect x="3" y="4" width="6" height="6" rx="1.5"/><rect x="15" y="4" width="6" height="6" rx="1.5"/><rect x="9" y="15" width="6" height="6" rx="1.5"/><path d="M9 7h6M18 10v2.5a2 2 0 0 1-2 2h-1M6 10v2.5a2 2 0 0 0 2 2h1"/>',
+    relogio: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/>',
+    codigo: '<path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/>',
+    letras: '<path d="M4 18 7.5 6 11 18M5.2 14h4.6M14 6h6l-6 12h6"/>',
+    escudo: '<path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.3 7.5 9.5 4.3-1.2 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/>',
+    satelite: '<rect x="9" y="9" width="6" height="6" rx="1" transform="rotate(45 12 12)"/><path d="m5 5 3 3M16 16l3 3M3 9l6-6M15 21l6-6M17 4a4 4 0 0 1 3 3M17 1a7 7 0 0 1 6 6"/>',
+};
+
+/**
+ * Logo: 3×3 pixels, o do centro aceso. É assim que o satélite "vê" um foco de incêndio:
+ * um pixel mais quente que os vizinhos.
+ */
+const LOGO_PIXELS = `<svg class="marca__pixels" viewBox="0 0 22 22" aria-hidden="true">
+    <g fill="currentColor" opacity=".22">
+        <rect x="0" y="0" width="6" height="6"/><rect x="8" y="0" width="6" height="6"/><rect x="16" y="0" width="6" height="6"/>
+        <rect x="0" y="8" width="6" height="6"/><rect x="16" y="8" width="6" height="6"/>
+        <rect x="0" y="16" width="6" height="6"/><rect x="8" y="16" width="6" height="6"/><rect x="16" y="16" width="6" height="6"/>
+    </g>
+    <rect x="8" y="8" width="6" height="6" fill="var(--quente)"/>
+</svg>`;
+
+function icone(nome, classe = "icone") {
+    return `<svg class="${classe}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ` +
+        `stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONES[nome] ?? ""}</svg>`;
+}
+
+/** Troca cada <span data-icone="x"> pelo SVG correspondente. */
+function aplicarIcones(raiz = document) {
+    raiz.querySelectorAll("[data-icone]").forEach((el) => {
+        el.innerHTML = icone(el.dataset.icone);
+        el.removeAttribute("data-icone");
+    });
+}
 
 const fmtInt = new Intl.NumberFormat("pt-BR");
 const fmtDec = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
@@ -25,25 +71,97 @@ const $ = (id) => document.getElementById(id);
 
 function montarCabecalho() {
     const atual = location.pathname.split("/").pop() || "index.html";
+    const pagina = PAGINAS.find((p) => p.arquivo === atual) ?? PAGINAS[0];
     const links = PAGINAS.map((p) => {
-        const ativo = p.arquivo === atual;
+        const ativo = p.arquivo === pagina.arquivo;
         return `<a href="${p.arquivo}"${ativo ? ' class="ativo" aria-current="page"' : ""}>${p.titulo}</a>`;
     }).join("");
 
-    $("cabecalho").innerHTML = `
-        <div class="cabecalho__linha">
-            <a class="marca" href="index.html">
-                <span class="marca__titulo">Focos de Incêndio · SP</span>
-                <span class="marca__sub">Algoritmos de ordenação · APS UNIP 2026/2</span>
-            </a>
-            <span id="status" class="status status--carregando">conectando…</span>
-        </div>
-        <nav class="menu" aria-label="Páginas">${links}</nav>`;
+    // cabeçalho e rodapé ficam fora do contêiner central, ocupando a largura toda da tela
+    const cabecalho = $("cabecalho");
+    const rodape = $("rodape");
+    document.body.prepend(cabecalho);
+    document.body.append(rodape);
 
-    $("rodape").innerHTML = `
-        APS · Ciência da Computação UNIP 2026/2 · Estrutura de Dados ·
-        Fonte dos dados: <a href="https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/EstadosBr_sat_ref/"
-        target="_blank" rel="noopener">INPE – Programa Queimadas</a>`;
+    cabecalho.innerHTML = `
+        <div class="barra">
+            <a class="marca" href="index.html" aria-label="Focos de Incêndio SP, página inicial">
+                ${LOGO_PIXELS}
+                <span class="marca__titulo">Focos de Incêndio SP</span>
+            </a>
+            <nav class="menu" id="menu" aria-label="Páginas">${links}<span class="menu__indicador" aria-hidden="true"></span></nav>
+            <span id="status" class="status status--carregando">conectando</span>
+            <button class="menu-botao" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+        </div>`;
+
+    rodape.innerHTML = `
+        <div class="rodape__conteudo">
+            <span>APS de Estrutura de Dados, Ciência da Computação UNIP, 2º semestre de 2026</span>
+            <span>Dados: <a href="https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/EstadosBr_sat_ref/"
+                target="_blank" rel="noopener">Programa Queimadas, INPE</a></span>
+        </div>`;
+
+    // menu "☰" no celular
+    const botao = cabecalho.querySelector(".menu-botao");
+    botao.addEventListener("click", () => {
+        const aberto = cabecalho.classList.toggle("aberto");
+        botao.setAttribute("aria-expanded", String(aberto));
+        botao.textContent = aberto ? "Fechar" : "Menu";
+    });
+
+    animarIndicador();
+}
+
+/** Elementos com a classe "revelar" aparecem (sobem e surgem) quando entram na tela. */
+function revelarAoRolar() {
+    const itens = document.querySelectorAll(".revelar");
+    if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        itens.forEach((el) => el.classList.add("visivel"));
+        return;
+    }
+    const observador = new IntersectionObserver((entradas) => {
+        for (const e of entradas) {
+            if (e.isIntersecting) {
+                e.target.classList.add("visivel");
+                observador.unobserve(e.target);
+            }
+        }
+    }, { rootMargin: "0px 0px -8% 0px" });
+    itens.forEach((el) => observador.observe(el));
+}
+
+/**
+ * O sublinhado do menu desliza da aba da página anterior até a aba atual.
+ * A posição da aba anterior fica guardada no sessionStorage entre uma página e outra.
+ */
+function animarIndicador() {
+    const menu = document.querySelector(".menu");
+    const ativo = menu.querySelector("a.ativo");
+    const indicador = menu.querySelector(".menu__indicador");
+    if (!ativo || getComputedStyle(indicador).display === "none") return;
+
+    const posicao = (el) => ({ left: el.offsetLeft, width: el.offsetWidth });
+    const aplicar = (p) => {
+        indicador.style.transform = `translateX(${p.left}px)`;
+        indicador.style.width = `${p.width}px`;
+    };
+
+    let anterior = null;
+    try { anterior = JSON.parse(sessionStorage.getItem("abaAnterior")); } catch (e) { /* sem storage */ }
+
+    const destino = posicao(ativo);
+    if (anterior && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        indicador.style.transition = "none";
+        aplicar(anterior);
+        indicador.getBoundingClientRect(); // força o navegador a desenhar a posição antiga
+        indicador.style.transition = "";
+        requestAnimationFrame(() => aplicar(destino));
+    } else {
+        aplicar(destino);
+    }
+
+    try { sessionStorage.setItem("abaAnterior", JSON.stringify(destino)); } catch (e) { /* sem storage */ }
+    window.addEventListener("resize", () => aplicar(posicao(ativo)));
 }
 
 function definirStatus(texto, tipo) {
@@ -57,7 +175,7 @@ function definirStatus(texto, tipo) {
 async function verificarApi() {
     try {
         const status = await api("/api/status");
-        definirStatus(`API ok · ${fmtInt.format(status.focos)} focos`, "ok");
+        definirStatus(`API conectada, ${fmtInt.format(status.focos)} focos`, "ok");
         return status;
     } catch (e) {
         definirStatus("API fora do ar", "erro");
@@ -232,7 +350,7 @@ function preencherCriterios(opcoes, id = "criterio") {
 
 function preencherAlgoritmos(opcoes, id = "algoritmo") {
     preencherSelect(id, opcoes.algoritmos.map((a) => ({
-        valor: a.codigo, texto: `${a.nome} · ${a.complexidadeMedia}`,
+        valor: a.codigo, texto: `${a.nome} (${a.complexidadeMedia})`,
     })), "MERGE");
 }
 
@@ -247,5 +365,6 @@ function nomeCriterio(opcoes, codigo) {
 
 document.addEventListener("DOMContentLoaded", () => {
     montarCabecalho();
+    aplicarIcones();
     configurarChart();
 });

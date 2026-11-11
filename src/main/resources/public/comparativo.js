@@ -42,10 +42,10 @@ function mostrarComparativo() {
     const c = estado.comparativo;
     if (!c) return;
 
-    $("tituloComparativo").textContent = `Resultado · ${nomeCriterio(estado.opcoes, c.criterio)}`;
+    $("tituloComparativo").textContent = `Resultado por ${nomeCriterio(estado.opcoes, c.criterio).toLowerCase()}`;
     $("legendaComparativo").textContent =
-        `${fmtInt.format(c.total)} focos${c.ano ? ` de ${c.ano}` : ""} · mesma entrada para os seis · ` +
-        `eixo em escala logarítmica (cada linha da grade = 10×)`;
+        `${fmtInt.format(c.total)} focos${c.ano ? ` de ${c.ano}` : ""}, a mesma entrada para os seis. ` +
+        `Eixo em escala logarítmica: cada linha da grade vale 10 vezes a anterior. Na tabela, em negrito, o mais rápido.`;
 
     // tabela com os números exatos
     const maisRapido = Math.min(...c.algoritmos.map((a) => a.tempoMs));

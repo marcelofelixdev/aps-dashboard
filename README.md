@@ -27,7 +27,7 @@ https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/anual/EstadosBr_s
 
 Abra o projeto no IntelliJ e rode `br.unip.aps.App`. Depois acesse http://localhost:7070.
 
-O dashboard tem quatro páginas (menu no topo):
+O dashboard tem cinco páginas (menu no topo):
 
 | Página | Arquivo | O que mostra |
 |---|---|---|
@@ -35,6 +35,7 @@ O dashboard tem quatro páginas (menu no topo):
 | **Ordenação** | `ordenacao.html` | escolhe critério, algoritmo e ano; mostra comparações, trocas e tempo, a tabela paginada na ordem obtida e o mapa por bioma |
 | **Comparativo** | `comparativo.html` | os 6 algoritmos na mesma entrada (gráfico em escala log + tabela), conclusões automáticas e a tabela algoritmo × critério |
 | **Estatísticas** | `estatisticas.html` | focos por mês (por bioma), por bioma e ranking de municípios, com filtro de ano |
+| **Previsões** | `previsoes.html` | cenários de focos por mês, calendário de prevenção, mapa e ranking de prioridade dos municípios, plano de contenção e validação 2023 → 2024 |
 
 > Os gráficos (Chart.js) e o mapa (Leaflet) vêm da internet. Sem conexão, a ordenação e a tabela
 > continuam funcionando e o dashboard avisa o que não carregou.
@@ -64,6 +65,7 @@ src/test/java/               ← testes dos algoritmos
 | `GET /api/ordenar?criterio=MUNICIPIO&algoritmo=MERGE[&ano=2024]` | ordena e devolve comparações, trocas, tempo e os focos ordenados |
 | `GET /api/comparar?criterio=DATA[&ano=2024]` | roda os 6 algoritmos na mesma entrada e devolve só as métricas |
 | `GET /api/estatisticas[?ano=2024][&top=10]` | focos por ano, por mês, por bioma e ranking de municípios |
+| `GET /api/previsoes[?top=20]` | perfil sazonal e cenários, janela crítica, índice de prioridade por município, áreas recorrentes e validação retroativa |
 
 Exemplos para abrir no navegador com o App rodando:
 - http://localhost:7070/api/ordenar?criterio=BIOMA&algoritmo=QUICK&ano=2023

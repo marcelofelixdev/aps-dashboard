@@ -36,7 +36,7 @@ function mostrar() {
     const seco = e.porMes.filter((c) => ["jul", "ago", "set", "out"].includes(c.rotulo.split("/")[0]))
         .reduce((s, c) => s + c.focos, 0);
     $("notaMes").textContent =
-        `${porcentagem(seco, e.totalFocos)} dos focos entre julho e outubro · pico em ${NOMES_MES[abrev]} de ${anoPico}`;
+        `${porcentagem(seco, e.totalFocos)} dos focos entre julho e outubro, com pico em ${NOMES_MES[abrev]} de ${anoPico}`;
 
     // focos por mês, empilhado por bioma
     desenhar("gMes", {
@@ -92,7 +92,7 @@ function mostrar() {
         },
     });
     $("notaBioma").textContent = e.porBioma
-        .map((b) => `${b.rotulo}: ${porcentagem(b.focos, e.totalFocos)}`).join(" · ");
+        .map((b) => `${b.rotulo}: ${porcentagem(b.focos, e.totalFocos)}`).join(", ");
 
     // ranking de municípios (magnitude sem identidade → cor neutra); a altura acompanha o tamanho do ranking
     $("caixaMunicipios").style.minHeight = `${Math.max(320, e.topMunicipios.length * 26 + 40)}px`;

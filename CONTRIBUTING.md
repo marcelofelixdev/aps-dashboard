@@ -46,7 +46,8 @@ aps-dashboard/
     │   │   └── HeapSort.java            ✅
     │   ├── service/
     │   │   ├── OrdenacaoService.java    ✅ junta critério + algoritmo + métricas
-    │   │   └── EstatisticaService.java  ✅ extras: focos por mês, por bioma, top municípios
+    │   │   ├── EstatisticaService.java  ✅ extras: focos por mês, por bioma, top municípios
+    │   │   └── PrevisaoService.java     ✅ cenários, prioridade por município, validação 2023 → 2024
     │   └── web/
     │       ├── ApiRoutes.java           ✅ endpoints REST do Javalin
     │       └── Parametros.java          ✅ converte e valida os parâmetros (400 se inválidos)
@@ -59,7 +60,7 @@ aps-dashboard/
     │   └── estatisticas.html + .js      ✅ gráficos (Chart.js)
     └── test/java/br/unip/aps/
         ├── io/LeitorCsvTest.java        ✅ leitura dos CSVs reais e de linhas quebradas
-        ├── service/                     ✅ OrdenacaoServiceTest, EstatisticaServiceTest
+        ├── service/                     ✅ OrdenacaoServiceTest, EstatisticaServiceTest, PrevisaoServiceTest
         ├── web/ParametrosTest.java      ✅ validação dos parâmetros
         └── sort/
             ├── CriterioTest.java        ✅ ordem e desempate de cada critério

@@ -2,6 +2,7 @@ package br.unip.aps.web;
 
 import br.unip.aps.service.EstatisticaService;
 import br.unip.aps.service.OrdenacaoService;
+import br.unip.aps.service.PrevisaoService;
 import br.unip.aps.sort.Algoritmo;
 import br.unip.aps.sort.Criterio;
 import br.unip.aps.web.Parametros.ParametroInvalidoException;
@@ -23,6 +24,7 @@ import java.util.Map;
  * GET /api/ordenar?criterio={DATA|BIOMA|MUNICIPIO}&amp;algoritmo={BUBBLE|INSERTION|SELECTION|MERGE|QUICK|HEAP}[&amp;ano=2024]
  * GET /api/comparar?criterio={DATA|BIOMA|MUNICIPIO}[&amp;ano=2024]   (os 6 algoritmos, só métricas)
  * GET /api/estatisticas[?ano=2024][&amp;top=10]
+ * GET /api/previsoes[?top=20]   (sazonalidade, prioridade por município, validação 2023 → 2024)
  * </pre>
  *
  * Erros de parâmetro respondem 400 com {@code {"erro": "..."}}.
@@ -32,7 +34,8 @@ public final class ApiRoutes {
     private ApiRoutes() {
     }
 
-    public static void registrar(Javalin app, OrdenacaoService ordenacao, EstatisticaService estatisticas) {
+    public static void registrar(Javalin app, OrdenacaoService ordenacao, EstatisticaService estatisticas,
+                                 PrevisaoService previsoes) {
 
         app.get("/api/status", ctx -> ctx.json(Map.of(
                 "status", "ok",
@@ -58,6 +61,11 @@ public final class ApiRoutes {
             Integer ano = Parametros.ano(ctx.queryParam("ano"), ordenacao.anosDisponiveis());
             int top = Parametros.inteiro(ctx.queryParam("top"), "top", 10, 1, 100);
             ctx.json(estatisticas.calcular(ano, top));
+        });
+
+        app.get("/api/previsoes", ctx -> {
+            int top = Parametros.inteiro(ctx.queryParam("top"), "top", 20, 1, 100);
+            ctx.json(previsoes.calcular(top));
         });
 
         app.exception(ParametroInvalidoException.class, (e, ctx) ->

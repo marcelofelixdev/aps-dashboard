@@ -14,6 +14,75 @@ const estado = {
     chaveMapa: null, // evita redesenhar o mapa quando os pontos não mudaram
 };
 
+// --------------------------------------------------------------------------
+// Roleta dos números: cada dígito é uma "fita" vertical 0–9 que rola até o valor
+// --------------------------------------------------------------------------
+
+const METRICAS = ["mComparacoes", "mTrocas", "mTempo", "mTotal"];
+const VOLTAS = 3; // a fita tem 0–9 repetido 3 vezes, para dar mais de uma volta
+const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+const semMovimento = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function fitaHTML() {
+    let numeros = "";
+    for (let i = 0; i < 10 * VOLTAS; i++) numeros += `<span>${i % 10}</span>`;
+    return `<span class="fita">${numeros}</span>`;
+}
+
+/** Monta o contador: dígitos viram colunas que rolam; pontos, vírgulas e letras ficam parados. */
+function montarContador(el, texto) {
+    let coluna = 0;
+    const partes = [...texto].map((ch) => {
+        if (!/\d/.test(ch)) return `<span class="sep">${ch === " " ? "&nbsp;" : escapar(ch)}</span>`;
+        // colunas alternadas: uma cai, a outra sobe
+        const sentido = coluna++ % 2 === 0 ? "cai" : "sobe";
+        return `<span class="digito ${sentido}" data-valor="${ch}">${fitaHTML()}</span>`;
+    });
+    el.innerHTML = `<span class="contador" aria-hidden="true">${partes.join("")}</span>`;
+    el.setAttribute("aria-label", texto);
+}
+
+/** Enquanto espera a resposta, os dígitos giram sem parar (mantém a quantidade de dígitos atual). */
+function girarSemParar(el) {
+    if (semMovimento()) return;
+    const atual = el.getAttribute("aria-label") || el.textContent;
+    const molde = /\d/.test(atual) ? atual.replace(/\d/g, "0") : "0.000";
+    montarContador(el, molde);
+    el.querySelector(".contador").classList.add("girando");
+}
+
+/**
+ * Para cada dígito no valor final, um depois do outro (da esquerda para a direita).
+ * @param ordem posição do card (0–3), para os cards também pararem em sequência
+ */
+function pararNo(el, texto, ordem = 0) {
+    if (semMovimento()) {
+        el.textContent = texto;
+        return;
+    }
+    montarContador(el, texto);
+    const digitos = [...el.querySelectorAll(".digito")];
+
+    // posição inicial (sem animação): a fita começa no topo (sobe) ou no fim (cai)
+    for (const d of digitos) {
+        const fita = d.firstElementChild;
+        fita.style.transition = "none";
+        const inicio = d.classList.contains("sobe") ? 0 : 10 * VOLTAS - 1;
+        fita.style.transform = `translateY(${-inicio}em)`;
+    }
+    el.getBoundingClientRect(); // aplica a posição inicial antes de animar
+
+    digitos.forEach((d, i) => {
+        const fita = d.firstElementChild;
+        const v = Number(d.dataset.valor);
+        // "sobe" termina na última volta da fita; "cai" termina na primeira
+        const destino = d.classList.contains("sobe") ? 10 * (VOLTAS - 1) + v : v;
+        const duracao = 900 + i * 130 + ordem * 120;
+        fita.style.transition = `transform ${duracao}ms cubic-bezier(.12, .8, .22, 1.04)`;
+        requestAnimationFrame(() => { fita.style.transform = `translateY(${-destino}em)`; });
+    });
+}
+
 function infoAlgoritmo(codigo) {
     return estado.opcoes.algoritmos.find((a) => a.codigo === codigo);
 }
@@ -25,41 +94,48 @@ function atualizarDica() {
 async function ordenar() {
     limparErro();
     $("btnOrdenar").disabled = true;
+    $("btnGirar").disabled = true;
     $("btnOrdenar").textContent = "Ordenando…";
-    document.querySelector(".metricas").classList.add("carregando");
+    METRICAS.forEach((id) => girarSemParar($(id)));
 
     try {
-        estado.resultado = await api("/api/ordenar", {
-            criterio: $("criterio").value,
-            algoritmo: $("algoritmo").value,
-            ano: $("ano").value,
-        });
+        // a roleta gira pelo menos um pouco, mesmo quando a resposta chega na hora
+        const [resultado] = await Promise.all([
+            api("/api/ordenar", {
+                criterio: $("criterio").value,
+                algoritmo: $("algoritmo").value,
+                ano: $("ano").value,
+            }),
+            esperar(700),
+        ]);
+        estado.resultado = resultado;
         estado.pagina = 0;
         mostrarMetricas();
         mostrarTabela();
         mostrarMapa();
     } catch (e) {
         mostrarErro(e.message);
+        METRICAS.forEach((id) => { $(id).textContent = "–"; });
     } finally {
         $("btnOrdenar").disabled = false;
+        $("btnGirar").disabled = !estado.resultado;
         $("btnOrdenar").textContent = "Ordenar";
-        document.querySelector(".metricas").classList.remove("carregando");
     }
 }
 
 function mostrarMetricas() {
     const r = estado.resultado;
-    $("mComparacoes").textContent = fmtInt.format(r.comparacoes);
-    $("mTrocas").textContent = fmtInt.format(r.trocas);
-    $("mTempo").textContent = formatarTempo(r.tempoMs);
-    $("mTotal").textContent = fmtInt.format(r.total);
+    pararNo($("mComparacoes"), fmtInt.format(r.comparacoes), 0);
+    pararNo($("mTrocas"), fmtInt.format(r.trocas), 1);
+    pararNo($("mTempo"), formatarTempo(r.tempoMs), 2);
+    pararNo($("mTotal"), fmtInt.format(r.total), 3);
 
     const info = estado.opcoes.algoritmos.find((a) => a.nome === r.algoritmo);
     const criterio = nomeCriterio(estado.opcoes, r.criterio).toLowerCase();
     const partes = [r.algoritmo, `por ${criterio}`];
     if (r.ano) partes.push(String(r.ano));
     if (info) partes.push(info.complexidadeMedia, info.estavel ? "estável" : "não estável");
-    $("resumoAlgoritmo").textContent = partes.join(" · ");
+    $("resumoAlgoritmo").textContent = partes.join(", ");
 
     // referência teórica: quanto seria n² e n·log₂n para este n
     const n = r.total;
@@ -145,6 +221,10 @@ function mostrarMapa() {
 
 async function iniciar() {
     $("btnOrdenar").addEventListener("click", ordenar);
+    $("btnGirar").addEventListener("click", () => {
+        METRICAS.forEach((id) => girarSemParar($(id)));
+        setTimeout(mostrarMetricas, 500);
+    });
     $("pagPrimeira").addEventListener("click", () => irParaPagina(0));
     $("pagAnterior").addEventListener("click", () => irParaPagina(estado.pagina - 1));
     $("pagProxima").addEventListener("click", () => irParaPagina(estado.pagina + 1));

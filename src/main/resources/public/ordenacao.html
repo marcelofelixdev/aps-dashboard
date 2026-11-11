@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ordenação · Focos de Incêndio SP</title>
-
-    <!-- Leaflet (mapa) vem da internet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-
     <link rel="stylesheet" href="style.css">
+    <title>Ordenação | Focos de Incêndio SP</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
     <script src="comum.js" defer></script>
     <script src="ordenacao.js" defer></script>
 </head>
@@ -39,7 +37,12 @@
     <section class="cartao" aria-labelledby="tituloResultado">
         <div class="cartao__cabecalho">
             <h2 id="tituloResultado">Resultado da ordenação</h2>
-            <span id="resumoAlgoritmo" class="etiqueta"></span>
+            <div class="cartao__acoes">
+                <span id="resumoAlgoritmo" class="etiqueta"></span>
+                <button id="btnGirar" class="botao botao--pequeno" type="button" disabled title="Repetir a animação dos números">
+                    ↻ Girar de novo
+                </button>
+            </div>
         </div>
         <div class="metricas">
             <div class="metrica"><span class="metrica__rotulo">Comparações</span><span id="mComparacoes" class="metrica__valor">–</span></div>
@@ -91,5 +94,8 @@
 
     <footer id="rodape" class="rodape"></footer>
 </div>
+
+<!-- bibliotecas externas (precisam de internet); carregadas no fim para não atrasar a página -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 </body>
 </html>
