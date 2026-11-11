@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <title>Previsões e prevenção | Focos de Incêndio SP</title>
+
+    <script src="comum.js" defer></script>
+    <script src="previsoes.js" defer></script>
+</head>
+<body>
+<div class="pagina">
+    <header id="cabecalho" class="cabecalho"></header>
+
+    <div class="titulo-pagina">
+        <h1>Previsões e prevenção</h1>
+        <p>Quando e onde os focos tendem a voltar, e como concentrar a prevenção e a contenção nesses lugares
+            e nesses meses.</p>
+    </div>
+
+    <div id="aviso" class="aviso" hidden></div>
+
+    <p class="metodo">
+        <strong>Como as estimativas foram feitas.</strong> Não usamos inteligência artificial: são contas simples
+        sobre os dois anos de registros do INPE, que dá para conferir à mão. O perfil do ano vem da média da
+        participação de cada mês nos dois anos, e a prioridade de cada município combina quantidade de focos,
+        dias com foco e repetição nos dois anos. Com só dois anos de dados, os números servem para planejar,
+        não para afirmar quantos focos vão acontecer.
+    </p>
+
+    <section class="metricas metricas--resumo" aria-label="Resumo">
+        <div class="metrica"><span class="metrica__rotulo">Janela crítica</span><span id="kJanela" class="metrica__valor">–</span><span id="kJanelaSub" class="metrica__sub"></span></div>
+        <div class="metrica"><span class="metrica__rotulo">Mês de maior risco</span><span id="kPico" class="metrica__valor">–</span><span id="kPicoSub" class="metrica__sub"></span></div>
+        <div class="metrica"><span class="metrica__rotulo">Municípios em prioridade alta</span><span id="kAlta" class="metrica__valor">–</span><span id="kAltaSub" class="metrica__sub"></span></div>
+        <div class="metrica"><span class="metrica__rotulo">Focos de 2024 em municípios já atingidos em 2023</span><span id="kRepete" class="metrica__valor">–</span><span id="kRepeteSub" class="metrica__sub"></span></div>
+    </section>
+
+    <!-- 1. quando -->
+    <section class="cartao" aria-labelledby="tituloQuando">
+        <div class="cartao__cabecalho">
+            <h2 id="tituloQuando">Quando: cenários para o próximo ano</h2>
+            <span class="legenda" id="legendaQuando"></span>
+        </div>
+        <div class="grafico grafico--largo"><canvas id="gCenarios"></canvas></div>
+        <p id="notaQuando" class="nota nota--espaco"></p>
+    </section>
+
+    <section class="cartao" aria-labelledby="tituloCalendario">
+        <div class="cartao__cabecalho">
+            <h2 id="tituloCalendario">Calendário de prevenção</h2>
+            <span class="nota">montado a partir da janela crítica</span>
+        </div>
+        <ol id="calendario" class="calendario" aria-label="Meses do ano e fase de prevenção"></ol>
+        <div id="fases" class="fases"></div>
+    </section>
+
+    <!-- 2. onde -->
+    <div class="grade grade--previsao grade--topo">
+        <section class="cartao" aria-labelledby="tituloMapa">
+            <div class="cartao__cabecalho">
+                <h2 id="tituloMapa">Onde: prioridade por município</h2>
+                <span class="legenda" id="legendaMapa"></span>
+            </div>
+            <div id="mapa" class="mapa"></div>
+            <p class="nota nota--espaco">Cada círculo é um município, no ponto médio dos seus focos, e o tamanho
+                acompanha o total de focos. Os quadrados vazados são áreas de cerca de 11 km × 11 km com foco nos
+                dois anos, as mais indicadas para ações fixas de contenção.</p>
+        </section>
+
+        <section class="cartao plano" aria-labelledby="tituloPlano" aria-live="polite">
+            <div class="cartao__cabecalho">
+                <h2 id="tituloPlano">Plano de contenção</h2>
+                <span id="faixaPlano" class="selo"></span>
+            </div>
+            <div id="plano"></div>
+        </section>
+    </div>
+
+    <section class="cartao" aria-labelledby="tituloRanking">
+        <div class="cartao__cabecalho">
+            <h2 id="tituloRanking">Municípios para priorizar</h2>
+            <div class="cartao__acoes">
+                <label class="campo campo--inline"><span>Mostrar</span>
+                    <select id="top">
+                        <option value="10">10 primeiros</option>
+                        <option value="20" selected>20 primeiros</option>
+                        <option value="30">30 primeiros</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div class="tabela-rolagem">
+            <table class="tabela tabela--compacta tabela--clicavel">
+                <thead>
+                <tr>
+                    <th class="num">#</th>
+                    <th>Município</th>
+                    <th class="num" id="thAno1">2023</th>
+                    <th class="num" id="thAno2">2024</th>
+                    <th class="num">Dias com foco</th>
+                    <th>Mês de pico</th>
+                    <th>Bioma</th>
+                    <th class="num">Índice</th>
+                    <th>Prioridade</th>
+                </tr>
+                </thead>
+                <tbody id="corpoRanking"></tbody>
+            </table>
+        </div>
+        <p id="notaRanking" class="nota"></p>
+    </section>
+
+    <!-- 3. validação -->
+    <section class="cartao" aria-labelledby="tituloValidacao">
+        <div class="cartao__cabecalho">
+            <h2 id="tituloValidacao">Isso funciona? Testando com 2023 → 2024</h2>
+            <span class="legenda" id="legendaValidacao"></span>
+        </div>
+        <div class="grade grade--metade grade--topo">
+            <div class="texto" id="textoValidacao"></div>
+            <div class="grafico grafico--validacao"><canvas id="gValidacao"></canvas></div>
+        </div>
+    </section>
+
+    <!-- 4. como impedir -->
+    <section class="cartao" aria-labelledby="tituloMedidas">
+        <div class="cartao__cabecalho">
+            <h2 id="tituloMedidas">Como impedir e conter os focos</h2>
+        </div>
+        <div class="medidas">
+            <article class="medida">
+                <h3>Aceiros</h3>
+                <p>Faixas sem vegetação na divisa de pastos, canaviais, matas e estradas. Elas não deixam o fogo
+                    passar de uma área para outra e servem de linha de defesa para os brigadistas. Precisam estar
+                    limpas antes da janela crítica.</p>
+            </article>
+            <article class="medida">
+                <h3>Manejo do material seco</h3>
+                <p>Roçar e retirar palha, capim seco e restos de poda perto de cercas, rodovias e casas diminui o
+                    combustível disponível. É mais eficaz nos meses que antecedem o pico.</p>
+            </article>
+            <article class="medida">
+                <h3>Brigadas posicionadas</h3>
+                <p>Na janela crítica, equipes e caminhões-pipa ficam de prontidão nos municípios de prioridade alta,
+                    principalmente nas áreas que tiveram foco nos dois anos. Chegar cedo é o que impede um foco de
+                    virar incêndio grande.</p>
+            </article>
+            <article class="medida">
+                <h3>Monitoramento diário</h3>
+                <p>Os focos do INPE são publicados todos os dias. Acompanhar o mapa nas áreas prioritárias permite
+                    enviar a equipe ao local logo depois da detecção, sem esperar a fumaça ser vista.</p>
+            </article>
+            <article class="medida">
+                <h3>Nada de fogo na época seca</h3>
+                <p>Queima de lixo, de pasto ou de restos de cultura é uma das origens comuns dos incêndios no
+                    interior. Campanhas com produtores rurais e moradores antes da janela crítica reduzem esses
+                    casos.</p>
+            </article>
+            <article class="medida">
+                <h3>Denúncia rápida</h3>
+                <p>Ao ver fogo em vegetação, ligue para o Corpo de Bombeiros (193) ou a Defesa Civil (199). Quanto
+                    antes a ocorrência é registrada, menor a área atingida.</p>
+            </article>
+        </div>
+    </section>
+
+    <p id="notaOrdenacao" class="nota"></p>
+
+    <footer id="rodape" class="rodape"></footer>
+</div>
+
+<!-- bibliotecas externas (precisam de internet); carregadas no fim para não atrasar a página -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.js" defer></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+</body>
+</html>
